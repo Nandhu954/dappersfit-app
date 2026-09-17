@@ -34,8 +34,15 @@ jobs:
 
       - name: Build Web App & Sync Capacitor
         run: |
-          npm run build
-          npx cap sync android
+          npm run build 2>&1 | tee build.log
+          npx cap sync android 2>&1 | tee -a build.log
+
+      - name: Upload Build Log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-log
+          path: build.log
 
       - name: Build with Gradle
         run: |
