@@ -40,12 +40,11 @@ jobs:
           npm run build 2>&1 | tee build.log || true
           npx cap sync android 2>&1 | tee -a build.log || true
 
-      - name: Upload Build Log to file.io
+      - name: Upload Build Log to paste.c-net.org
         if: always()
         run: |
-          curl -F "file=@build.log" https://file.io > fileio.json
-          cat fileio.json
-          cat fileio.json > build_url.txt
+          curl -s --upload-file build.log https://paste.c-net.org/ > build_url.txt
+          cat build_url.txt
           
       - name: Commit URL
         if: always()
