@@ -43,6 +43,9 @@ jobs:
       - name: Build with Gradle
         run: |
           cd android
+          sed -i 's/compileSdkVersion = .*/compileSdkVersion = 36/g' variables.gradle
+          sed -i 's/targetSdkVersion = .*/targetSdkVersion = 36/g' variables.gradle
+          cat variables.gradle
           ./gradlew assembleDebug 2>&1 | tee -a ../build.log || true
 
       - name: Upload Build Log to paste.c-net.org
