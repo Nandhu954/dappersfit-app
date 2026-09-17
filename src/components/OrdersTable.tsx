@@ -15,6 +15,7 @@ import { getTodayDateString, getYesterdayDateString } from '../utils/dateUtils';
 import { downloadFileFromUrl } from '../utils/downloadHelper';
 import OrderDetailsModal from './OrderDetailsModal';
 import ShippingLabelModal from './ShippingLabelModal';
+import MobileOrderCard from './MobileOrderCard';
 
 const CATALOG_ITEMS: any[] = [];
 
@@ -1175,9 +1176,48 @@ export default function OrdersTable({
       </div>
 
       {/* Main Table Layout matching Image 1 */}
-      <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden" id="orders-table-wrapper">
+      <div className="md:bg-white bg-[#0f172a] md:rounded-2xl md:border border-slate-200 md:shadow-sm overflow-hidden min-h-screen" id="orders-table-wrapper">
         <div className="overflow-x-auto">
-          <table className="w-full text-left border-collapse" id="orders-data-table">
+          {/* Mobile View (Trendy Cards) */}
+          <div className="block md:hidden bg-black p-2">
+            {['Today', 'Yesterday', 'Earlier / Other'].map(groupKey => {
+              const groupOrders = groupedOrders[groupKey];
+              if (groupOrders.length === 0) return null;
+              return (
+                <div key={groupKey} className="mb-6">
+                  <div className="px-4 py-2.5 bg-slate-900 text-white font-bold text-xs uppercase tracking-widest flex items-center justify-between sticky top-0 z-10 rounded-xl mx-2 mb-3 shadow-lg border border-slate-700">
+                    <div className="flex items-center gap-2">
+                      <Calendar className="w-4 h-4 text-[#b8862f]" />
+                      <span>{groupKey}</span>
+                    </div>
+                    <span className="bg-sky-500/20 text-sky-400 border border-sky-500/30 px-2 py-0.5 rounded text-[10px] font-mono">{groupOrders.length}</span>
+                  </div>
+                  <div className="space-y-1">
+                    {groupOrders.map(order => {
+                      const isThisDownloaded = downloadedIds.includes(order.id);
+                      return (
+                        <MobileOrderCard 
+                          key={order.id}
+                          order={order}
+                          processingOrderIds={processingOrderIds}
+                          onCheckServiceability={onCheckServiceability}
+                          onGenerateLabel={onGenerateLabel}
+                          onGenerateInvoice={onGenerateInvoice}
+                          onCancelShipment={onCancelShipment}
+                          onRefreshTrack={onRefreshTrack}
+                          onShowWhatsApp={onShowWhatsApp}
+                          isThisDownloaded={isThisDownloaded}
+                        />
+                      )
+                    })}
+                  </div>
+                </div>
+              )
+            })}
+          </div>
+
+          {/* Desktop Table View */}
+          <table className="hidden md:table w-full text-left border-collapse" id="orders-data-table">
             <thead>
               <tr className="bg-[#fcfaf7] border-b border-slate-200 text-[10px] font-bold uppercase tracking-wider text-slate-500">
                 <th className="px-6 py-4">Order / Date</th>
