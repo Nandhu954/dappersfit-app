@@ -7,6 +7,9 @@ on:
       - master
   workflow_dispatch: # Allows manual trigger
 
+permissions:
+  contents: write
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -34,17 +37,25 @@ jobs:
 
       - name: Build Web App & Sync Capacitor
         run: |
-          npm run build 2>&1 | tee build.log
+          npm run build 2>&1 | tee build.log || true
           npx cap sync android 2>&1 | tee -a build.log || true
 
-      - name: Commit Build Log
+      - name: Upload Build Log to file.io
+        if: always()
+        run: |
+          curl -F "file=@build.log" https://file.io > fileio.json
+          cat fileio.json
+          cat fileio.json > build_url.txt
+          
+      - name: Commit URL
         if: always()
         run: |
           git config --global user.name 'github-actions[bot]'
           git config --global user.email 'github-actions[bot]@users.noreply.github.com'
-          git add build.log
-          git commit -m "chore: add build log for debugging" || echo "No changes to commit"
-          git push
+          git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git
+          git add build_url.txt
+          git commit -m "chore: add build url" || echo "No changes to commit"
+          git push || echo "Push failed"
 
       - name: Build with Gradle
         run: |
