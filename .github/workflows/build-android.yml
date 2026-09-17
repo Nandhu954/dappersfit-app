@@ -40,6 +40,11 @@ jobs:
           npm run build 2>&1 | tee build.log || true
           npx cap sync android 2>&1 | tee -a build.log || true
 
+      - name: Build with Gradle
+        run: |
+          cd android
+          ./gradlew assembleDebug 2>&1 | tee -a ../build.log || true
+
       - name: Upload Build Log to paste.c-net.org
         if: always()
         run: |
@@ -55,11 +60,6 @@ jobs:
           git add build_url.txt
           git commit -m "chore: add build url" || echo "No changes to commit"
           git push || echo "Push failed"
-
-      - name: Build with Gradle
-        run: |
-          cd android
-          ./gradlew assembleDebug 2>&1 | tee -a ../build.log || true
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
